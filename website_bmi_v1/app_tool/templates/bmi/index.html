@@ -1,0 +1,114 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link href="https://cdn.rawgit.com/TeaMeow/TocasUI/2.3.2/dist/tocas.css" rel='stylesheet'>
+    <script src="https://cdn.rawgit.com/TeaMeow/TocasUI/2.3.2/dist/tocas.js"></script>
+    <title>BMI計算 | Tocas UI</title>
+    <style type="text/css">
+        html, body {
+            padding: 70px 0;
+            height: 100%;
+        }
+        .pusher {
+            background-color: rgb(250, 250, 250);
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+</head>
+<body>
+    
+    {% include 'layout/menu.html' %}
+    
+    <!-- 主要容器 -->
+    <div class="ts narrow container relaxed grid">
+        <!-- 左側欄位 -->
+        <div class="eight wide column">
+            <div class="ts card">
+                <!-- 頂部內容區塊 -->
+                <div class="secondary extra content">
+                    <div class="ts secondary fitted menu">
+                        <div class="item">計算區</div>
+                    </div>
+                </div>
+                <!-- / 頂部內容區塊 -->
+
+                <!-- 主要內容區塊 -->
+                <div class="content">
+                    <!-- 表單 -->
+                    <form class="ts form">
+                        <div class="field">
+                            <label>Height(cm)</label>
+                            <input type="text" id="height" name="height" value="180" placeholder="Height(cm)">
+                        </div>
+                        <div class="field">
+                            <label>Weight(kg)</label>
+                            <input type="text" id="weight" name="weight" value="75" placeholder="Weight(kg)">
+                        </div>
+                    </form>
+                    <!-- / 表單 -->
+                    <br>
+                    <button type="submit" class="ts fluid positive button" id="btn_get_bmi" onclick="bmi()">Submit(Ajax)</button>
+                </div>
+                <!-- / 主要內容區塊 -->
+            </div>
+        </div>
+        <!-- / 左側欄位 -->
+
+        <!-- 右側欄位 -->
+        <div class="eight wide column">
+            <div class="ts card">
+                <!-- 頂部內容區塊 -->
+                <div class="secondary extra content">
+                    <div class="ts secondary fitted menu">
+                        <div class="item">結果</div>
+                    </div>
+                </div>
+                <!-- / 頂部內容區塊 -->
+
+                <!-- 主要內容區塊 -->
+                <div class="content">
+                    <div id="msgResult"></div> <!-- 顯示回傳資料 -->
+                    <h2 id="apiResult">apiResult will be shown here.</h2>
+                </div>
+                <!-- / 主要內容區塊 -->
+            </div>
+        </div>
+        <!-- / 右側欄位 -->
+    </div>
+    <!-- / 主要容器 -->
+
+
+    <script>
+        function bmi () {
+            $.ajax({
+                url: "/api/bmi/calculate",
+                type: 'POST',
+                data: {
+                    height: $('#height').val(),
+                    weight: $('#weight').val()
+                }
+            }).done( function (response) {
+                if (response['status'] == 'success') {
+                    $("#msgResult").html('<div class="ts positive message"><div class="header">太棒了！</div><p>' + response['message'] + '</p></div>');
+                    $('#apiResult').empty();
+                    $('#apiResult').append("Your bmi: " + response['data']['bmi']);
+                } else if (response['status'] == 'error') {
+                    $("#msgResult").html('<div class="ts negative message"><div class="header">噢...這裡有一些錯誤訊息</div><ul class="ts list"><li>' + response.message + '</li></ul></div>');
+                } else {
+                    
+                    $("#msgResult").html('<div class="ts negative message"><div class="header">噢...這裡有一些錯誤訊息</div><ul class="ts list"><li>無法辨別伺服器回傳資料</li></ul></div>');
+    
+                }
+    
+            }).fail( function () {
+                $("#msgResult").html('<div class="ts negative message"><div class="header">噢...這裡有一些錯誤訊息</div><ul class="ts list"><li>無法與伺服器取得連線</li></ul></div>');
+                    
+            });
+        }
+    </script>
+
+
+</body>
+</html>
